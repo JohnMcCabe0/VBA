@@ -1,0 +1,168 @@
+
+Sub SingleOutOneDefinition()
+
+ 
+
+    Dim fileDate As String
+
+    Dim savePath As String
+
+    Dim sourcePath As String
+
+    Dim ws As Worksheet
+
+    Dim col As Long
+
+    Dim wb As Workbook
+
+    Dim PrepFileWB As Workbook
+
+ 
+
+    ' Paths
+
+    savePath = "J:\Example\John's Saved Files"
+
+    sourcePath = "F:\Example\Data Source"
+
+ 
+
+    ' Set PrepFileWB to the current workbook where the macro is running
+
+    Set PrepFileWB = ThisWorkbook
+
+ 
+
+    ' Get the file date from the specified cell in the PrepFileWB
+
+    fileDate = PrepFileWB.Sheets("Homepage").Range("C15").Value
+
+    fileDate2 = PrepFileWB.Sheets("Homepage").Range("C15").Value
+
+ 
+
+    ' Open the main workbook
+
+    Set wb = Workbooks.Open(savePath & "the file is called banana.xlsx")
+
+ 
+
+    ' Open the target workbooks
+
+    Workbooks.Open sourcePath & "nav file x" & fileDate & ".xlsx"
+
+ 
+
+    ' Copy data from nav file x
+
+    With Workbooks("nav file x" & fileDate & ".xlsx").Sheets("Balance Sheet")
+
+        .Columns("A:AW").Copy 'Adjustable
+
+    End With
+
+    With wb.Sheets("Balance Sheet")
+
+        .Range("A1").PasteSpecial Paste:=xlPasteValues
+
+    End With
+
+ 
+
+ 
+
+    ' Clean up sheet
+
+    Set ws = wb.Sheets("MF Balance Sheet")
+
+    For col = ws.Cells(13, ws.Columns.Count).End(xlToLeft).Column To 2 Step -1
+
+        If InStr(1, ws.Cells(13, col).Value, "What we want", vbTextCompare) = 0 Then
+
+            ws.Columns(col).Delete
+
+        End If
+
+    Next col
+
+ 'SO anything that isn't named what we want is deleted
+
+    ' Apply formatting
+
+    FormatSheet wb.Sheets("Balance Sheet")
+
+ 
+
+    ' Close all source workbooks without saving
+
+    Workbooks("nav file x" & fileDate & ".xlsx").Close SaveChanges:=False
+
+ 
+
+    ' Save the main workbook with the original name
+
+    wb.SaveAs Filename:=savePath & "this file is called banana.xlsx"
+
+ 
+
+    ' Save the main workbook with the date in the name
+
+    wb.SaveAs Filename:=savePath & "this file is called banana " & fileDate2 & ".xlsx"
+
+    wb.Close
+
+ 
+
+End Sub
+
+ 
+
+Sub FormatSheet(ws As Worksheet)
+
+    With ws
+
+        ' Adjust column widths
+
+        .Cells.EntireColumn.AutoFit
+
+ 
+
+        ' Apply borders
+
+        With .Cells.Borders
+
+            .LineStyle = xlContinuous
+
+            .ColorIndex = 0
+
+            .TintAndShade = 0
+
+            .Weight = xlThin
+
+        End With
+
+ 
+
+        ' Set text alignment
+
+        .Cells.HorizontalAlignment = xlCenter
+
+        .Cells.VerticalAlignment = xlCenter
+
+ 
+
+        ' Bold header row
+
+        .Rows(5).Font.Bold = True
+
+ 
+
+        ' Set header row background color
+
+        .Rows(5).Interior.Color = RGB(200, 200, 200)
+
+    End With
+
+End Sub
+
+ 
