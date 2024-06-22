@@ -1,0 +1,142 @@
+
+Emails:
+
+Column A – Subject
+
+Column b - Recipients
+
+Column C – CC
+
+Column D – Text
+
+Column E – Attachments
+
+Column F until M – File Paths
+
+Column N on - Attachments
+
+ 
+
+Sub SendEmailsOtherSheet()
+
+'Select Correct Sheet
+
+Sheets("Mail and Macro").Select
+
+'Create Outlook instance
+
+Set objOutlook = CreateObject("Outlook.Application")
+
+ 
+
+'Loop through each row
+
+For i = 2 To 8
+
+    'Get email details from cells
+
+    subject = Cells(i, "A").Value
+
+    recipients = Cells(i, "B").Value
+
+    emailText = Cells(i, "D").Value
+
+    attachments = Split(Cells(i, "E").Value, ",")
+
+    attachmentPaths = Split(Cells(i, "F").Value, ",")
+
+ 
+
+    'Create new email
+
+    Set objMail = objOutlook.CreateItem(0)
+
+ 
+
+    'Add subject
+
+    objMail.subject = subject
+
+ 
+
+    'Add recipients
+
+    Set mailRecipients = objMail.recipients
+
+    For Each recipient In Split(recipients, ",")
+
+        mailRecipients.Add recipient
+
+    Next recipient
+
+ 
+
+    'Add CC recipients as regular recipients
+
+    ccRecipientsList = Split(Cells(i, "C").Value, ",")
+
+    For Each ccRecipient In ccRecipientsList
+
+        mailRecipients.Add ccRecipient
+
+    Next ccRecipient
+
+ 
+
+    'Add email text
+
+    objMail.Body = emailText
+
+ 
+
+    'Add attachments
+
+    For j = 0 To UBound(attachments)
+
+        attachmentFound = False
+
+        For k = 0 To UBound(attachmentPaths)
+
+            For Each attachmentPath In Split(attachmentPaths(k), ",")
+
+                If Dir(attachmentPath & "\" & attachments(j)) <> "" Then
+
+                    objMail.attachments.Add attachmentPath & "\" & attachments(j)
+
+                    attachmentFound = True
+
+                    Exit For
+
+                End If
+
+            Next attachmentPath
+
+            If attachmentFound Then Exit For
+
+        Next k
+
+    Next j
+
+ 
+
+    'Display email
+
+    objMail.Display
+
+Next i
+
+ 
+
+'Clean up
+
+Set objMail = Nothing
+
+Set objOutlook = Nothing
+
+'So you're not left on the wrong sheet
+
+Sheets("Update as needed").Select
+
+End Sub
+
+ 
